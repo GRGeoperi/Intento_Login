@@ -4,10 +4,20 @@ void limpiar_pantalla()
 {
     system("clear");
 }
+
 void continuar()
 {
     printf("Presione enter para continuar...\n");
     getchar();
+}
+
+struct tm *calcular_fecha()
+{
+    time_t fecha_cruda;
+    struct tm *fecha;
+    time(&fecha_cruda);
+    fecha = localtime(&fecha_cruda);
+    return fecha;
 }
 
 void calcular_hash(unsigned char *Password, unsigned char *Salt_bin, unsigned char *Hash_bin)
@@ -66,6 +76,13 @@ void crear_usuario()
     EVP_EncodeBlock((unsigned char *)rootHash_hex, rootHash_bin, 32);
     // Adición de cada uno del hash al archivo JSON
     json_object_set_new(bloqueRoot, "hash", json_string(rootHash_hex));
+    // Adición de la fecha al archivo JSON
+    struct tm *timeinfo;
+    timeinfo = calcular_fecha();
+    // Crear una cadena de fecha formateada
+    char fecha[25];
+    strftime(fecha, sizeof(fecha), "%Y-%m-%dT%H:%M:%S", timeinfo);
+    json_object_set_new(bloqueRoot, "fecha", json_string(fecha));
     // Guardar la estructuración en un archivo JSON
     json_dump_file(bloqueGeneral, "dataBase.json", JSON_INDENT(4));
     // Liberar la memoria del arreglo y de los objetos
@@ -81,14 +98,14 @@ void verificar_usuario()
 {
     if (access("dataBase.json", F_OK) != -1) 
     {
-        printf("\tHola de nuevo!\n\n");
+        printf("\tHola de nuevo!\n");
         continuar();
         limpiar_pantalla();
     } 
     else
     {
         printf("\t\tAviso: Esta es la primera vez que ejecuta el programa.");
-        printf(" Por favor, ingrese los datos requeridos para continuar.\n\n");
+        printf(" Por favor, ingrese los datos requeridos para continuar.\n");
         crear_usuario();
         continuar();
         limpiar_pantalla();

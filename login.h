@@ -13,6 +13,7 @@ typedef struct Datos_crudos
     json_t *Salt;
     json_t *UserName;
     json_t *Hash;
+    json_t *Fecha;
 }datos_crudos;
 
 typedef struct Datos
@@ -20,10 +21,12 @@ typedef struct Datos
     const char *Salt_hex;
     const char *UserName;
     const char *Hash_hex;
+    const char *Fecha;
 }datos;
 
 void limpiar_pantalla();
 void continuar();
+struct tm *calcular_fecha();
 void calcular_hash(unsigned char *Password, unsigned char *Salt_bin, unsigned char *Hash_bin);
 void crear_usuario();
 void verificar_usuario();
