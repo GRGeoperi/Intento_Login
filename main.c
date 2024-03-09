@@ -10,21 +10,7 @@
 
 int main(void)
 {
-    VerificacionUsuarios();
-    //if(LogUser() == 1)
-    //{
-        // Función agregar
-        // Función modificar
-        // Función eliminar
-        // Función consultar productos
-        // Función regresar
-    //}
-    //else
-    //{
-        // Función consultar catálogo
-        // Función realizar compra
-        // Función regresar
-    //}
-    LogUser();
+    verificar_usuario();
+    iniciar_sesion();
     return 0;
 }

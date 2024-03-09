@@ -7,30 +7,30 @@
 #include <openssl/ssl.h>
 #include <openssl/rand.h>
 #include <openssl/evp.h>
-#ifdef _WIN32
-	#include <windows.h>
-#endif
 
-typedef struct DatosInutiles
+typedef struct Datos_crudos
 {
     json_t *Salt;
     json_t *UserName;
     json_t *Hash;
-}datosInutiles;
+    json_t *Fecha;
+}datos_crudos;
 
-typedef struct DatosUtiles
+typedef struct Datos
 {
     const char *Salt_hex;
     const char *UserName;
     const char *Hash_hex;
-}datosUtiles;
+    const char *Fecha;
+}datos;
 
-void ClearScreen();
-void Continue();
-void CalculateHash(unsigned char *Password, unsigned char *Salt_bin, unsigned char *Hash_bin);
-void CreacionUsuarios();
-void VerificacionUsuarios();
-datosInutiles bloqueInutil(json_t *infoUser);
-datosUtiles bloqueUtil(datosInutiles usuario);
-int PasswordCheck(const char *SaltInfo_hex, const char *HashInfo_hex);
-int LogUser();
+void limpiar_pantalla();
+void continuar();
+struct tm *calcular_fecha();
+void calcular_hash(unsigned char *Password, unsigned char *Salt_bin, unsigned char *Hash_bin);
+void crear_usuario();
+void verificar_usuario();
+datos_crudos obtener_datos_crudos(json_t *infoUser);
+datos obtener_datos(datos_crudos usuario);
+int comprobar_password(const char *SaltInfo_hex, const char *HashInfo_hex);
+int iniciar_sesion();
