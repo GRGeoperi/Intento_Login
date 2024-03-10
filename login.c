@@ -40,55 +40,49 @@ void calcular_hash(unsigned char *Password, unsigned char *Salt_bin, unsigned ch
 
 void crear_usuario()
 {
-    // El objeto principal del archivo JSON
     json_t *bloqueGeneral = json_object();
-    // El objeto de administrador del archivo JSON
-    json_t *bloqueRoot = json_object();
-    // Se agrega al objeto principal
-    json_object_set_new(bloqueGeneral, "administrador", bloqueRoot);
-    // Semilla para el administrador
-    unsigned char saltRoot_bin[8];
-    RAND_bytes(saltRoot_bin, 8);
-    // Semilla hexadecimal del administrador
-    char saltRoot_hex[8 * 2 + 1];
-    EVP_EncodeBlock((unsigned char *)saltRoot_hex, saltRoot_bin, 8);
-    // Adición de cada una de las semillas en hexadecimal al archivo JSON
-    json_object_set_new(bloqueRoot, "salt", json_string(saltRoot_hex));
-    // Usuario con privilegios de administrador
-    char root[256];
+    json_t *bloquePrimario = json_object();
+
+    char usuario[58];
+    unsigned char semilla_bin[8];
+    char semilla_hex[17];
+    char password[256];
+    unsigned char hash_bin[32];
+    char hash_hex[65];
+
+    struct tm *timeinfo;
+    char fecha[25];
+
+    json_object_set_new(bloqueGeneral, "administrador", bloquePrimario);
+    RAND_bytes(semilla_bin, 8);
+    EVP_EncodeBlock((unsigned char *)semilla_hex, semilla_bin, 8);
+    json_object_set_new(bloquePrimario, "salt", json_string(semilla_hex));
+    
     printf("Administrador: ");
     fflush(stdout);
-    scanf("%255s%*c", root);
-    // (Inseguro) contraseña directa del administrador
-    char root_password[256];
+    scanf("%57s%*c", usuario);
+
     printf("Contraseña: ");
     fflush(stdout);
-    scanf("%255s%*c", root_password);
+    scanf("%255s%*c", password);
     limpiar_pantalla();
     continuar();
-    // Adición del usuario al archivo JSON
-    json_object_set_new(bloqueRoot, "usuario", json_string(root));
-    // Hasheo de la contraseña del usuario usando el algoritmo SHA256
-    unsigned char rootHash_bin[32];
-    calcular_hash(root_password, saltRoot_bin, rootHash_bin);
-    // Conversión del hash a hexadecimal
-    char rootHash_hex[32 * 2 + 1];
-    EVP_EncodeBlock((unsigned char *)rootHash_hex, rootHash_bin, 32);
-    // Adición de cada uno del hash al archivo JSON
-    json_object_set_new(bloqueRoot, "hash", json_string(rootHash_hex));
-    // Adición de la fecha al archivo JSON
-    struct tm *timeinfo;
+    json_object_set_new(bloquePrimario, "usuario", json_string(usuario));
+
+    calcular_hash(password, semilla_bin, hash_bin);
+    EVP_EncodeBlock((unsigned char *)hash_hex, hash_bin, 32);
+
+    json_object_set_new(bloquePrimario, "hash", json_string(hash_hex));
     timeinfo = calcular_fecha();
-    // Crear una cadena de fecha formateada
-    char fecha[25];
+    
     strftime(fecha, sizeof(fecha), "%Y-%m-%dT%H:%M:%S", timeinfo);
-    json_object_set_new(bloqueRoot, "fecha", json_string(fecha));
-    // Guardar la estructuración en un archivo JSON
+    json_object_set_new(bloquePrimario, "fecha", json_string(fecha));
+
     json_dump_file(bloqueGeneral, "dataBase.json", JSON_INDENT(4));
-    // Liberar la memoria del arreglo y de los objetos
+
     json_decref(bloqueGeneral);
-    json_decref(bloqueRoot);
-    // Establecer los permisos posteriores solo de lectura
+    json_decref(bloquePrimario);
+
     chmod("dataBase.json", 0444);
     limpiar_pantalla();
     printf("\tAhora puede ocupar el programa con normalidad.\n\n");
